@@ -8,6 +8,9 @@
   <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+  
+  <!-- File config của bạn -->
+  <script src="firebase-config.js"></script>
 
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -243,7 +246,6 @@
 
   <div class="card" id="card">
     <div class="card-inner">
-      
       <!-- Mặt trước -->
       <div class="front">
         <div style="font-size: 90px; margin-bottom: 10px;">💌</div>
@@ -275,7 +277,6 @@
           Thiiiiiiis<br>MUCH
         </div>
 
-        <!-- Phần input -->
         <div class="response-area" id="responseArea">
           <p style="font-size: 17px; margin-bottom: 8px; color:#333;">Bạn nghĩ sao? ❤️</p>
           <input type="text" id="userInput" class="response-input" 
@@ -287,14 +288,17 @@
   </div>
 
   <script>
-    // ==================== FIREBASE CONFIG ====================
-    const app = initializeApp(firebaseConfig);
-
     let db;
 
     function initFirebase() {
+      if (typeof firebaseConfig === "undefined") {
+        console.error("❌ Không tìm thấy firebaseConfig. Kiểm tra file firebase-config.js");
+        return;
+      }
+
       try {
-        db = getFirestore(app);
+        firebase.initializeApp(firebaseConfig);
+        db = firebase.firestore();
         console.log("✅ Firebase đã kết nối thành công");
       } catch (error) {
         console.error("❌ Lỗi khởi tạo Firebase:", error);
@@ -304,14 +308,12 @@
     const card = document.getElementById('card');
     const responseArea = document.getElementById('responseArea');
 
-    // Mở thiệp
     card.addEventListener('click', () => {
       if (!card.classList.contains('open')) {
         card.classList.add('open');
       }
     });
 
-    // Hỗ trợ vuốt mobile
     let touchStartX = 0;
     card.addEventListener('touchstart', e => touchStartX = e.changedTouches[0].screenX);
     card.addEventListener('touchend', e => {
@@ -341,7 +343,7 @@
       try {
         if (db) {
           await db.collection("card_responses").add(responseData);
-          console.log("✅ Đã gửi dữ liệu lên Firebase:", responseData);
+          console.log("✅ Đã gửi lên Firebase:", responseData);
         }
 
         responseArea.innerHTML = `
@@ -350,12 +352,11 @@
             Mình đã nhận rồi nhé ❤️
           </p>`;
       } catch (error) {
-        console.error("Lỗi:", error);
+        console.error("Lỗi gửi:", error);
         alert("Đã gửi lời nhắn thành công! ❤️");
       }
     }
 
-    // Khởi tạo Firebase
     window.onload = initFirebase;
   </script>
 </body>
