@@ -288,24 +288,30 @@
 
   <script>
     // ==================== FIREBASE CONFIG ====================
-    // env
     const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
 
-    window.db = db; // Đặt db vào window để dễ truy cập trong các hàm khác
-    window.collection = collection; // Đặt collection vào window để dễ truy cập
-    window.appDoc = appDoc; // Đặt appDoc vào window để dễ truy cập
+    let db;
+
+    function initFirebase() {
+      try {
+        db = getFirestore(app);
+        console.log("✅ Firebase đã kết nối thành công");
+      } catch (error) {
+        console.error("❌ Lỗi khởi tạo Firebase:", error);
+      }
+    }
 
     const card = document.getElementById('card');
     const responseArea = document.getElementById('responseArea');
 
+    // Mở thiệp
     card.addEventListener('click', () => {
       if (!card.classList.contains('open')) {
         card.classList.add('open');
       }
     });
 
-    // Mobile swipe support
+    // Hỗ trợ vuốt mobile
     let touchStartX = 0;
     card.addEventListener('touchstart', e => touchStartX = e.changedTouches[0].screenX);
     card.addEventListener('touchend', e => {
@@ -329,30 +335,27 @@
         timestamp: new Date().toISOString(),
         device: navigator.userAgent.substring(0, 150),
         screenSize: `${window.innerWidth}x${window.innerHeight}`,
+        location: "Ninh Binh, VN"
       };
 
       try {
         if (db) {
           await db.collection("card_responses").add(responseData);
-          console.log("✅ Đã gửi lên Firebase:", responseData);
-        } else {
-          console.log("⚠️ Firebase chưa kết nối, chỉ log dữ liệu:", responseData);
+          console.log("✅ Đã gửi dữ liệu lên Firebase:", responseData);
         }
 
-        // Hiển thị thông báo thành công
         responseArea.innerHTML = `
           <p class="success-message">
             ❤️ Cảm ơn lời nhắn của bạn!<br>
             Mình đã nhận rồi nhé ❤️
           </p>`;
-
       } catch (error) {
-        console.error("Lỗi gửi Firebase:", error);
+        console.error("Lỗi:", error);
         alert("Đã gửi lời nhắn thành công! ❤️");
       }
     }
 
-    // Khởi tạo Firebase khi trang load
+    // Khởi tạo Firebase
     window.onload = initFirebase;
   </script>
 </body>
