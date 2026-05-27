@@ -3,14 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Thiệp Pop-up I Love You</title>
+  <title>Thiệp</title>
   
   <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-  
-  <!-- File config của bạn -->
-  <script src="firebase-config.js"></script>
 
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -93,7 +90,6 @@
       transform: scale(1.08);
     }
 
-    /* Nhân vật */
     .head {
       width: 85px;
       height: 78px;
@@ -165,7 +161,6 @@
     .card.open .arm.left  { transform: rotate(-65deg); }
     .card.open .arm.right { transform: rotate(65deg); }
 
-    /* Trái tim được ôm */
     .big-heart {
       position: absolute;
       font-size: 52px;
@@ -193,7 +188,6 @@
       line-height: 1.1;
     }
 
-    /* Input khu vực */
     .response-area {
       display: none;
       width: 100%;
@@ -246,18 +240,16 @@
 
   <div class="card" id="card">
     <div class="card-inner">
-      <!-- Mặt trước -->
       <div class="front">
         <div style="font-size: 90px; margin-bottom: 10px;">💌</div>
         <h1>OPEN</h1>
-        <p style="font-size: 18px; opacity: 0.95;">Nhấn để mở thiệp</p>
+        <p style="font-size: 9px; opacity: 0.95;">dthdat</p>
       </div>
 
-      <!-- Mặt sau -->
       <div class="back">
         <div class="text top-text">I LOVE YOU</div>
         
-        <div class="figure" id="figure">
+        <div class="figure">
           <div class="head">
             <div class="eyes">
               <div class="eye"></div>
@@ -278,7 +270,7 @@
         </div>
 
         <div class="response-area" id="responseArea">
-          <p style="font-size: 17px; margin-bottom: 8px; color:#333;">Bạn nghĩ sao? ❤️</p>
+          <p style="font-size: 17px; margin-bottom: 8px; color:#333;">Nơi gửi lời nhắn</p>
           <input type="text" id="userInput" class="response-input" 
                  placeholder="Nhập lời nhắn của bạn..." maxlength="120">
           <button class="btn-submit" onclick="submitResponse()">Gửi lời nhắn</button>
@@ -288,20 +280,25 @@
   </div>
 
   <script>
+    // ==================== FIREBASE CONFIG (Dán config của bạn vào đây) ====================
+    export const firebaseConfig = {
+    apiKey:            "AIzaSyAp662RigHoY9oZEJ5RuRI-pr1i9C8F38c",
+    authDomain:        "trauastudiogroup.firebaseapp.com",
+    projectId:         "trauastudiogroup",
+    storageBucket:     "trauastudiogroup.appspot.com",
+    messagingSenderId: "1051790148888",
+    appId:             "1:1051790148888:web:1234567890abcdef"
+};
+
     let db;
 
     function initFirebase() {
-      if (typeof firebaseConfig === "undefined") {
-        console.error("❌ Không tìm thấy firebaseConfig. Kiểm tra file firebase-config.js");
-        return;
-      }
-
       try {
         firebase.initializeApp(firebaseConfig);
         db = firebase.firestore();
-        console.log("✅ Firebase đã kết nối thành công");
-      } catch (error) {
-        console.error("❌ Lỗi khởi tạo Firebase:", error);
+        console.log(" Firebase kết nối thành công");
+      } catch (e) {
+        console.error(" Lỗi Firebase:", e);
       }
     }
 
@@ -309,26 +306,21 @@
     const responseArea = document.getElementById('responseArea');
 
     card.addEventListener('click', () => {
-      if (!card.classList.contains('open')) {
-        card.classList.add('open');
-      }
+      if (!card.classList.contains('open')) card.classList.add('open');
     });
 
     let touchStartX = 0;
     card.addEventListener('touchstart', e => touchStartX = e.changedTouches[0].screenX);
     card.addEventListener('touchend', e => {
       if (Math.abs(e.changedTouches[0].screenX - touchStartX) > 60) {
-        if (!card.classList.contains('open')) {
-          card.classList.add('open');
-        }
+        if (!card.classList.contains('open')) card.classList.add('open');
       }
     });
 
     async function submitResponse() {
       const message = document.getElementById('userInput').value.trim();
-      
       if (message === "") {
-        alert("Vui lòng nhập lời nhắn ❤️");
+        alert("Nhập lời nhắn ik bạn ơi!!!!");
         return;
       }
 
@@ -337,23 +329,18 @@
         timestamp: new Date().toISOString(),
         device: navigator.userAgent.substring(0, 150),
         screenSize: `${window.innerWidth}x${window.innerHeight}`,
-        location: "Ninh Binh, VN"
       };
 
       try {
         if (db) {
           await db.collection("card_responses").add(responseData);
-          console.log("✅ Đã gửi lên Firebase:", responseData);
+          console.log(" Gửi Firebase thành công");
         }
 
-        responseArea.innerHTML = `
-          <p class="success-message">
-            ❤️ Cảm ơn lời nhắn của bạn!<br>
-            Mình đã nhận rồi nhé ❤️
-          </p>`;
+        responseArea.innerHTML = `<p class="success-message">Lời nhắn đã được ghi nhận<br>To dthdat</p>`;
       } catch (error) {
-        console.error("Lỗi gửi:", error);
-        alert("Đã gửi lời nhắn thành công! ❤️");
+        console.error(error);
+        alert("Đã gửi lời nhắn thành công!");
       }
     }
 
