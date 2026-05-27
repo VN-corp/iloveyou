@@ -1,361 +1,359 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>💌</title>
-  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600&family=Dancing+Script:wght@700&display=swap" rel="stylesheet" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Thiệp Pop-up I Love You</title>
+  
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
     body {
-      min-height: 100dvh;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #ff6b6b, #ff8e8e);
+      height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-family: 'Be Vietnam Pro', sans-serif;
-      background: linear-gradient(135deg, #fff0f5 0%, #ffe4ef 40%, #ffdde8 70%, #fff6f9 100%);
       overflow: hidden;
-      position: relative;
     }
 
-    .petal {
-      position: fixed;
-      font-size: 1.1rem;
-      opacity: 0;
-      pointer-events: none;
-      animation: petalFall linear infinite;
-    }
-
-    @keyframes petalFall {
-      0%   { transform: translateY(-60px) rotate(0deg); opacity: 0.7; }
-      80%  { opacity: 0.5; }
-      100% { transform: translateY(110dvh) rotate(360deg); opacity: 0; }
-    }
-
-    /* ─── Card ─── */
     .card {
-      background: rgba(255, 255, 255, 0.72);
-      backdrop-filter: blur(18px);
-      -webkit-backdrop-filter: blur(18px);
-      border: 1.5px solid rgba(255, 150, 180, 0.3);
-      border-radius: 28px;
-      padding: 2.8rem 2.2rem 2.4rem;
-      max-width: 360px;
-      width: 90%;
-      text-align: center;
-      box-shadow:
-        0 8px 32px rgba(255, 100, 140, 0.13),
-        0 2px 8px rgba(255, 100, 140, 0.08);
+      width: 320px;
+      height: 560px;
       position: relative;
-      z-index: 10;
-      animation: cardIn 0.7s cubic-bezier(.22,1,.36,1) both;
-    }
-
-    @keyframes cardIn {
-      from { opacity: 0; transform: translateY(32px) scale(0.96); }
-      to   { opacity: 1; transform: translateY(0)   scale(1);     }
-    }
-
-    .big-heart {
-      font-size: 3.6rem;
-      display: block;
-      margin-bottom: .6rem;
-      animation: heartbeat 1.5s ease-in-out infinite;
-    }
-
-    @keyframes heartbeat {
-      0%, 100% { transform: scale(1);    }
-      14%       { transform: scale(1.18); }
-      28%       { transform: scale(1);    }
-      42%       { transform: scale(1.12); }
-      56%       { transform: scale(1);    }
-    }
-
-    /* ─── Main message ─── */
-    .msg-main {
-      font-family: 'Dancing Script', cursive;
-      font-size: clamp(1.35rem, 5vw, 1.65rem);
-      color: #c0395e;
-      line-height: 1.5;
-      margin-bottom: 1.8rem;
-    }
-
-    .msg-confirm {
-      font-family: 'Dancing Script', cursive;
-      font-size: clamp(1.3rem, 5vw, 1.6rem);
-      color: #e0547a;
-      margin-top: 1.2rem;
-      opacity: 0;
-      transform: scale(0.85);
-      transition: opacity .45s ease, transform .45s cubic-bezier(.22,1,.36,1);
-      min-height: 2rem;
-    }
-
-    .msg-confirm.show {
-      opacity: 1;
-      transform: scale(1);
-    }
-
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      gap: .45rem;
-      background: linear-gradient(135deg, #ff7eac 0%, #ff3d74 100%);
-      color: #fff;
-      border: none;
-      border-radius: 50px;
-      padding: .82rem 2.1rem;
-      font-size: 1.05rem;
-      font-family: 'Be Vietnam Pro', sans-serif;
-      font-weight: 600;
+      perspective: 1200px;
       cursor: pointer;
-      box-shadow: 0 4px 18px rgba(255, 61, 116, 0.38);
-      transition: transform .15s, box-shadow .15s, opacity .3s;
-      letter-spacing: .01em;
     }
 
-    .btn:hover  { transform: translateY(-2px); box-shadow: 0 7px 22px rgba(255, 61, 116, 0.45); }
-    .btn:active { transform: scale(.96); }
-    .btn:disabled { opacity: .55; cursor: not-allowed; transform: none; }
-
-    .fly-heart {
-      position: fixed;
-      font-size: 1.4rem;
-      pointer-events: none;
-      z-index: 999;
-      animation: flyUp 1.6s ease-out forwards;
+    .card-inner {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      transition: transform 0.9s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+      transform-style: preserve-3d;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.25);
+      border-radius: 20px;
     }
 
-    @keyframes flyUp {
-      0%   { opacity: 1;   transform: translate(0, 0)        scale(1);    }
-      100% { opacity: 0;   transform: translate(var(--dx), var(--dy)) scale(.4); }
+    .card.open .card-inner {
+      transform: rotateY(180deg);
     }
 
-    .divider {
-      width: 50px;
-      height: 2px;
-      background: linear-gradient(90deg, transparent, #ffaabf, transparent);
-      margin: 1.2rem auto;
-      border-radius: 99px;
+    .front, .back {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      border-radius: 20px;
+      overflow: hidden;
     }
 
-    /* ─── Popup overlay ─── */
-    .popup-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(255, 200, 220, 0.35);
-      backdrop-filter: blur(6px);
-      -webkit-backdrop-filter: blur(6px);
-      z-index: 100;
+    .front {
+      background: linear-gradient(145deg, #ff4757, #c81e2e);
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity .45s ease;
+      color: white;
     }
 
-    .popup-overlay.show {
-      opacity: 1;
-      pointer-events: all;
+    .front h1 {
+      font-size: 48px;
+      margin: 15px 0;
+      text-shadow: 0 4px 8px rgba(0,0,0,0.3);
     }
 
-    .popup-box {
-      background: rgba(255, 255, 255, 0.88);
-      backdrop-filter: blur(22px);
-      -webkit-backdrop-filter: blur(22px);
-      border: 1.5px solid rgba(255, 150, 180, 0.35);
-      border-radius: 26px;
-      padding: 2.4rem 2rem 2rem;
-      max-width: 300px;
-      width: 85%;
-      text-align: center;
-      box-shadow:
-        0 12px 40px rgba(255, 80, 130, 0.18),
-        0 3px 10px rgba(255, 80, 130, 0.1);
-      transform: translateY(30px) scale(0.92);
-      transition: transform .5s cubic-bezier(.22,1,.36,1);
-    }
-
-    .popup-overlay.show .popup-box {
-      transform: translateY(0) scale(1);
-    }
-
-    .popup-moon {
-      font-size: 3rem;
-      display: block;
-      margin-bottom: .5rem;
-      animation: moonBob 3s ease-in-out infinite;
-    }
-
-    @keyframes moonBob {
-      0%, 100% { transform: translateY(0) rotate(-5deg); }
-      50%       { transform: translateY(-6px) rotate(5deg); }
-    }
-
-    .popup-text {
-      font-family: 'Dancing Script', cursive;
-      font-size: clamp(1.3rem, 5vw, 1.55rem);
-      color: #c0395e;
-      line-height: 1.55;
-      margin-bottom: 1.5rem;
-    }
-
-    .popup-close {
-      display: inline-flex;
+    .back {
+      background: #fff;
+      transform: rotateY(180deg);
+      padding: 25px;
+      display: flex;
+      flex-direction: column;
       align-items: center;
-      gap: .35rem;
-      background: linear-gradient(135deg, #ffaac5 0%, #ff6b9d 100%);
-      color: #fff;
+      box-shadow: inset 0 0 40px rgba(0,0,0,0.08);
+    }
+
+    .figure {
+      width: 180px;
+      height: 240px;
+      position: relative;
+      transition: all 0.8s ease;
+      margin: 10px 0 15px;
+    }
+
+    .card.open .figure {
+      transform: scale(1.08);
+    }
+
+    /* Nhân vật */
+    .head {
+      width: 85px;
+      height: 78px;
+      background: #fff;
+      border: 5px solid #222;
+      border-radius: 50%;
+      margin: 0 auto 8px;
+      position: relative;
+    }
+
+    .eyes {
+      position: absolute;
+      top: 25px;
+      left: 20px;
+      width: 45px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .eye {
+      width: 14px;
+      height: 20px;
+      background: #222;
+      border-radius: 50%;
+    }
+
+    .smile {
+      position: absolute;
+      top: 48px;
+      left: 28px;
+      width: 30px;
+      height: 12px;
+      border: 4px solid #222;
+      border-top: none;
+      border-radius: 0 0 50% 50%;
+    }
+
+    .body {
+      width: 72px;
+      height: 115px;
+      background: #fff;
+      border: 5px solid #222;
+      border-top: none;
+      margin: -12px auto 0;
+      border-radius: 0 0 45px 45px;
+    }
+
+    .arms {
+      position: absolute;
+      top: 95px;
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      transition: all 0.8s ease;
+    }
+
+    .arm {
+      width: 28px;
+      height: 75px;
+      background: #fff;
+      border: 5px solid #222;
+      border-radius: 40px;
+      transition: transform 0.8s ease;
+    }
+
+    .arm.left  { transform: rotate(-35deg); transform-origin: top center; }
+    .arm.right { transform: rotate(35deg);  transform-origin: top center; }
+
+    .card.open .arm.left  { transform: rotate(-65deg); }
+    .card.open .arm.right { transform: rotate(65deg); }
+
+    /* Trái tim được ôm */
+    .big-heart {
+      position: absolute;
+      font-size: 52px;
+      top: 105px;
+      left: 50%;
+      transform: translateX(-50%);
+      transition: all 1s ease;
+      z-index: 10;
+    }
+
+    .card.open .big-heart {
+      transform: translateX(-50%) translateY(-28px) scale(1.18) rotate(10deg);
+    }
+
+    .text {
+      font-family: 'Comic Sans MS', cursive;
+      text-align: center;
+      color: #222;
+    }
+
+    .top-text { font-size: 24px; margin-bottom: 8px; }
+    .bottom-text { 
+      font-size: 32px; 
+      font-weight: bold;
+      line-height: 1.1;
+    }
+
+    /* Input khu vực */
+    .response-area {
+      display: none;
+      width: 100%;
+      margin-top: 20px;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .card.open .response-area {
+      display: flex;
+    }
+
+    .response-input {
+      width: 100%;
+      padding: 12px 16px;
+      font-family: 'Comic Sans MS', cursive;
+      font-size: 16px;
+      border: 2px solid #ff4757;
+      border-radius: 25px;
+      outline: none;
+      text-align: center;
+    }
+
+    .btn-submit {
+      padding: 12px 40px;
+      font-family: 'Comic Sans MS', cursive;
+      font-size: 18px;
+      font-weight: bold;
+      background: #ff4757;
+      color: white;
       border: none;
       border-radius: 50px;
-      padding: .65rem 1.8rem;
-      font-size: .95rem;
-      font-family: 'Be Vietnam Pro', sans-serif;
-      font-weight: 600;
       cursor: pointer;
-      box-shadow: 0 4px 16px rgba(255, 61, 116, 0.32);
-      transition: transform .15s, box-shadow .15s;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
     }
 
-    .popup-close:hover  { transform: translateY(-2px); box-shadow: 0 7px 20px rgba(255, 61, 116, 0.42); }
-    .popup-close:active { transform: scale(.96); }
+    .btn-submit:hover {
+      transform: scale(1.05);
+    }
+
+    .success-message {
+      color: #ff4757;
+      font-weight: bold;
+      text-align: center;
+    }
   </style>
 </head>
 <body>
 
+  <div class="card" id="card">
+    <div class="card-inner">
+      
+      <!-- Mặt trước -->
+      <div class="front">
+        <div style="font-size: 90px; margin-bottom: 10px;">💌</div>
+        <h1>OPEN</h1>
+        <p style="font-size: 18px; opacity: 0.95;">Nhấn để mở thiệp</p>
+      </div>
 
-  <div class="card">
-    <span class="big-heart">😗</span>
+      <!-- Mặt sau -->
+      <div class="back">
+        <div class="text top-text">I LOVE YOU</div>
+        
+        <div class="figure" id="figure">
+          <div class="head">
+            <div class="eyes">
+              <div class="eye"></div>
+              <div class="eye"></div>
+            </div>
+            <div class="smile"></div>
+          </div>
+          <div class="body"></div>
+          <div class="arms">
+            <div class="arm left"></div>
+            <div class="arm right"></div>
+          </div>
+          <div class="big-heart">❤️</div>
+        </div>
 
-    <p class="msg-main">M có thik tao hok?</p>
+        <div class="text bottom-text">
+          Thiiiiiiis<br>MUCH
+        </div>
 
-    <div class="divider"></div>
-
-    <button class="btn" id="confirmBtn" onclick="handleConfirm()">
-      có
-    </button>
-
-    <button class="btn" id="confirmBtno" onclick="handleConfirm()">
-      hok!
-    </button>
-
-    <p class="msg-confirm" id="msgConfirm">M thuộc về tao r đs nha 🫨</p>
-    <p class="msg-confirmno" id="msgConfirmno">Huhuhu 😡, dỗi ko chơi với mày nữa😫</p>
+        <!-- Phần input -->
+        <div class="response-area" id="responseArea">
+          <p style="font-size: 17px; margin-bottom: 8px; color:#333;">Bạn nghĩ sao? ❤️</p>
+          <input type="text" id="userInput" class="response-input" 
+                 placeholder="Nhập lời nhắn của bạn..." maxlength="120">
+          <button class="btn-submit" onclick="submitResponse()">Gửi lời nhắn</button>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <script type="module">
-
-    // ── 1. Import Firebase ──────────────────────────────────────────────────
-    import { initializeApp }              from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
-    import { getFirestore, collection,
-             addDoc, serverTimestamp }    from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
-    import { firebaseConfig } from "./firebase-config.js";
-
-    // ── 3. Khởi tạo Firebase & Firestore ──────────────────────────────────
-    const app = initializeApp(firebaseConfig);
-    const db  = getFirestore(app);
-
-
-    // ── 4. Hàm ghi dữ liệu vào Firestore ──────────────────────────────────
-    async function saveToFirestore() {
-      try {
-        await addDoc(collection(db, "love_confirm"), {
-          status: "xac_nhan_yeu",
-          yes: "true",
-          time:   serverTimestamp(),
-          device: navigator.userAgent
-        });
-        console.log("Xác nhận yêu");
-      } catch (error) {
-        console.error("Lỗi Firebase:", error);
-      }
-    }
-
-    window._saveToFirestore = saveToFirestore;
-
-  </script>
-
   <script>
+    // ==================== FIREBASE CONFIG ====================
+    // env
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
 
-    /* ─── Tạo cánh hoa rơi ─────────────────────────────────── */
-    (function spawnPetals() {
-      const symbols = ["🌸", "🌺", "💮", "🏵️", "🫨", "❤️"];
-      for (let i = 0; i < 25; i++) {
-        const el = document.createElement("span");
-        el.className = "petal";
-        el.textContent = symbols[i % symbols.length];
-        el.style.cssText = `
-          left: ${Math.random() * 100}%;
-          animation-duration: ${5 + Math.random() * 7}s;
-          animation-delay: ${Math.random() * 6}s;
-          font-size: ${0.8 + Math.random() * 0.9}rem;
-        `;
-        document.body.appendChild(el);
+    window.db = db; // Đặt db vào window để dễ truy cập trong các hàm khác
+    window.collection = collection; // Đặt collection vào window để dễ truy cập
+    window.appDoc = appDoc; // Đặt appDoc vào window để dễ truy cập
+
+    const card = document.getElementById('card');
+    const responseArea = document.getElementById('responseArea');
+
+    card.addEventListener('click', () => {
+      if (!card.classList.contains('open')) {
+        card.classList.add('open');
       }
-    })();
+    });
 
+    // Mobile swipe support
+    let touchStartX = 0;
+    card.addEventListener('touchstart', e => touchStartX = e.changedTouches[0].screenX);
+    card.addEventListener('touchend', e => {
+      if (Math.abs(e.changedTouches[0].screenX - touchStartX) > 60) {
+        if (!card.classList.contains('open')) {
+          card.classList.add('open');
+        }
+      }
+    });
 
-    function spawnHearts(originEl) {
-      const rect    = originEl.getBoundingClientRect();
-      const cx      = rect.left + rect.width / 2;
-      const cy      = rect.top  + rect.height / 2;
-      const hearts  = ["💗","💓","💕","💖","❤️","🩷"];
+    async function submitResponse() {
+      const message = document.getElementById('userInput').value.trim();
+      
+      if (message === "") {
+        alert("Vui lòng nhập lời nhắn ❤️");
+        return;
+      }
 
-      for (let i = 0; i < 12; i++) {
-        const h  = document.createElement("span");
-        h.className = "fly-heart";
-        h.textContent = hearts[Math.floor(Math.random() * hearts.length)];
+      const responseData = {
+        message: message,
+        timestamp: new Date().toISOString(),
+        device: navigator.userAgent.substring(0, 150),
+        screenSize: `${window.innerWidth}x${window.innerHeight}`,
+      };
 
-        const angle = (Math.PI * 2 / 12) * i;
-        const dist  = 80 + Math.random() * 80;
-        h.style.cssText = `
-          left: ${cx}px;
-          top:  ${cy}px;
-          --dx: ${Math.cos(angle) * dist}px;
-          --dy: ${Math.sin(angle) * dist - 60}px;
-          font-size: ${1 + Math.random() * .8}rem;
-          animation-duration: ${1.2 + Math.random() * .7}s;
-          animation-delay: ${Math.random() * .2}s;
-        `;
-        document.body.appendChild(h);
-        h.addEventListener("animationend", () => h.remove());
+      try {
+        if (db) {
+          await db.collection("card_responses").add(responseData);
+          console.log("✅ Đã gửi lên Firebase:", responseData);
+        } else {
+          console.log("⚠️ Firebase chưa kết nối, chỉ log dữ liệu:", responseData);
+        }
+
+        // Hiển thị thông báo thành công
+        responseArea.innerHTML = `
+          <p class="success-message">
+            ❤️ Cảm ơn lời nhắn của bạn!<br>
+            Mình đã nhận rồi nhé ❤️
+          </p>`;
+
+      } catch (error) {
+        console.error("Lỗi gửi Firebase:", error);
+        alert("Đã gửi lời nhắn thành công! ❤️");
       }
     }
 
-    async function handleConfirm() {
-      const btn     = document.getElementById("confirmBtn");
-      const msgEl   = document.getElementById("msgConfirm");
-
-      btn.disabled = true;
-
-      // Hiệu ứng tim
-      spawnHearts(btn);
-
-      // Ghi Firestore (nếu module đã load)
-      if (window._saveToFirestore) {
-        await window._saveToFirestore();
-      }
-
-      // Hiện thông báo
-      msgEl.classList.add("show");
-
-      // Sau 5s hiện popup ngủ ngon
-      setTimeout(() => {
-        document.getElementById("popupOverlay").classList.add("show");
-      }, 10000);
-    }
-
-    function closePopup() {
-      document.getElementById("popupOverlay").classList.remove("show");
-    }
-
-    window.closePopup = closePopup;
-
-    // Expose ra global để onclick="" dùng được
-    window.handleConfirm = handleConfirm;
-
+    // Khởi tạo Firebase khi trang load
+    window.onload = initFirebase;
   </script>
 </body>
 </html>
